@@ -43,8 +43,8 @@ class Properties
             year_built
             ) =
             ($1, $2, $3, $4)
-            WHERE id = $1"
-      attributes = [@address, @value, @num_rooms, @year_built]
+            WHERE id = $5"
+      attributes = [@address, @value, @num_rooms, @year_built, @id]
       db.prepare("update", sql)
       db.exec_prepared("update", attributes)
       db.close
@@ -53,28 +53,38 @@ class Properties
     def delete()
       db = PG.connect({dbname: 'properties', host:'localhost'})
       sql = "DELETE FROM properties_table
-            WHERE id = [$1]"
+            WHERE id = $1"
       attributes = [@id]
-      db.prepare("delete", attributes)
-      db.exec_prepared("delete", values)
+      db.prepare("delete", sql)
+      db.exec_prepared("delete", attributes)
       db.close
     end
 
-    def Properties.delete_all()
-    db = PG.connect({dbname: 'properties', host: 'localhost'})
-    sql = "DELETE FROM properties_table"
-    db.prepare("delete_all", sql)
-    db.exec_prepared("delete_all")
-    db.close
-  end
+    def Properties.find_by_id()
+      db = PG.connect({dbname: 'properties', host:'localhost'})
+      sql = "SELECT * FROM properties_table
+            WHERE id = 1"
+      db.prepare("find", sql)
+      properties = db.exec_prepared("find")
+      db.close
+      return properties.map {|property_hash| Properties.new(property_hash)}
+    end
 
-  def Properties.all()
-    db = PG.connect({dbname: 'properties', host: 'localhost'})
-    sql = "SELECT * FROM properties_table"
-    db.prepare("all", sql)
-    properties = db.exec_prepared("all")
-    db.close
-    return properties.map {|property_hash| Properties.new(property_hash)}
-  end
+  #   def Properties.delete_all()
+  #   db = PG.connect({dbname: 'properties', host: 'localhost'})
+  #   sql = "DELETE FROM properties_table"
+  #   db.prepare("delete_all", sql)
+  #   db.exec_prepared("delete_all")
+  #   db.close
+  # end
+
+  # def Properties.all()
+  #   db = PG.connect({dbname: 'properties', host: 'localhost'})
+  #   sql = "SELECT * FROM properties_table"
+  #   db.prepare("all", sql)
+  #   properties = db.exec_prepared("all")
+  #   db.close
+  #   return properties.map {|property_hash| Properties.new(property_hash)}
+  # end
 
 end
